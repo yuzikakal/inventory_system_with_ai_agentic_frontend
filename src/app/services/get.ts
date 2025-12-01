@@ -1,0 +1,36 @@
+import { ApiResponse, InventoryItem, User } from '../globalvariables';
+import { BASE_URL } from '../globalvariables';
+
+export const fetchInventoryData = async (): Promise<InventoryItem[]> => {
+  try {
+    const response = await fetch(BASE_URL);
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const json: ApiResponse = await response.json();
+
+    if (json.status !== 'success') {
+      throw new Error('API returned non-success status');
+    }
+    // Handle both single object and array responses to be robust
+    if (Array.isArray(json.data)) {
+      return json.data;
+    } else if (json.data) {
+      return [json.data];
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("Failed to fetch inventory:", error);
+    throw error;
+  }
+};
+
+export const getUserAuth = async () => {
+    const response = await fetch("/v1/api/auth/me");
+    const data = await response.json();
+    console.log(data);
+    return data;
+}

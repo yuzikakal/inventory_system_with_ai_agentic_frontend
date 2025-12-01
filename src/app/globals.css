@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Misans";
+  src: url(../../public/fonts/MiSans-Medium.ttf) format("truetype");
+}
+
+* {
+  font-family: "Misans";
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

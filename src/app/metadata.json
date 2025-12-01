@@ -1,0 +1,5 @@
+{
+  "name": "Smart Inventory Dashboard",
+  "description": "Elegant and simple inventory management dashboard connecting to local smart inventory API.",
+  "requestFramePermissions": []
+}
