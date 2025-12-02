@@ -65,7 +65,7 @@ export const InventoryTable = ({ items, onEdit, onDelete }: InventoryTableProps)
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th scope="col" className="px-6 py-4 font-medium text-slate-500">Item Name</th>
-              <th scope="col" className="px-6 py-4 font-medium text-slate-500 text-right">Stock</th>
+              <th scope="col" className="px-6 py-4 font-medium text-slate-500 text-center">Stock</th>
               <th scope="col" className="px-6 py-4 font-medium text-slate-500 text-right">Price (IDR)</th>
               <th scope="col" className="px-6 py-4 font-medium text-slate-500">Added By</th>
               <th scope="col" className="px-6 py-4 font-medium text-slate-500 text-right">Created At</th>
@@ -83,8 +83,8 @@ export const InventoryTable = ({ items, onEdit, onDelete }: InventoryTableProps)
                     {item.name}
                   </div>
                 </td>
-                <td className="px-6 py-4 text-right">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                <td className="sm:px-6 sm:py-4 text-center">
+                  <span className={`block sm:inline-flex items-center px-2.5 py-1 sm:py-0.5 rounded-full text-xs font-medium ${
                     parseInt(item.stock) > 10 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-amber-100 text-amber-800'
@@ -107,8 +107,7 @@ export const InventoryTable = ({ items, onEdit, onDelete }: InventoryTableProps)
                   {formatDate(item.created_at)}
                 </td>
                  <td className="px-6 py-4 text-center">
-                  {isActionOpen ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 justify-center">
                       <button className="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded hover:bg-indigo-50" onClick={() => onEdit(item)}>
                         <Pencil size={16} />
                       </button>
@@ -116,11 +115,6 @@ export const InventoryTable = ({ items, onEdit, onDelete }: InventoryTableProps)
                         <Trash size={16} />
                       </button>
                     </div>
-                  ) : (
-                    <button className="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded hover:bg-indigo-50" onClick={actionClicked}>
-                      <MoreHorizontal size={16} />
-                    </button>
-                  )}
                 </td>
               </tr>
             ))}
