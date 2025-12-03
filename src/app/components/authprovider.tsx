@@ -34,7 +34,7 @@ export default function AuthProvider({ children }: Props) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-600 to-purple-700 px-4">
         <div className="bg-white rounded-xl shadow-2xl p-8 flex flex-col items-center gap-4 animate-fade-in w-full max-w-sm">
           <div className="p-4 bg-blue-100 rounded-full">
             <Lock className="w-8 h-8 text-blue-600" />
