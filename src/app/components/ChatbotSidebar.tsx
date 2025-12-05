@@ -172,7 +172,10 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
       })
       setIsModalOpen(true)
     } catch (err) {
-      setMessages(msgs => [...msgs, { role: "bot", content: "Terjadi kesalahan: " + err }]);
+      setMessages((msgs) => [
+        ...msgs,
+        { role: "bot", content: "Terjadi kesalahan: " + err },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -187,9 +190,29 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
       onMouseLeave={() => setIsOpen(false)}
     >
       <div className="flex items-center justify-center h-14">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-blue-600">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-          <text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">AI</text>
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          className="text-blue-600"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <text
+            x="12"
+            y="16"
+            textAnchor="middle"
+            fontSize="10"
+            fill="currentColor"
+          >
+            AI
+          </text>
         </svg>
       </div>
       {isOpen && (
