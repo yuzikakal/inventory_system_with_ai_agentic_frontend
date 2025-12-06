@@ -27,11 +27,7 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const sidebarHeaderRef = useRef(null);
-    { role: "", content: "" }
-  ])
-  const [input, setInput] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const sidebarRef = useRef<HTMLDivElement>(null)
+  
   const [historyChat, setHistoryChat] = useState([]) as any
   const [tableModel, setTableModel] = useState([]) as any[]
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -151,7 +147,6 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
       return;
     }
 
-
     const formattedRequest = `
       Kamu adalah AI yang hanya menjawab dalam format JSON valid.
       Format wajib:
@@ -213,7 +208,6 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
 
   return (
     <>
-    {/* <div>tes</div> */}
     <div
       ref={sidebarRef}
       className="fixed right-0 top-0 h-full bg-white border-l border-slate-200 shadow-lg flex flex-col transition-all z-40 justify-between"
@@ -300,50 +294,8 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
               </button>
             </div>
           </div>
-        {/* <div className="fixed bottom-24 right-24 bg-indigo-600 text-white w-10 z-10">tes</div> */}
     </div>
+      {ModalConfirm()}
     </>
   );
 };
-      <div className="flex flex-col h-full p-4 pt-0 min-w-[264px]">
-        <h2 className="font-bold text-lg mb-2 text-blue-700">Chatbot Support</h2>
-
-        {/* Chat area scrollable */}
-        <div className="flex-1 overflow-y-auto mb-2 border rounded p-2 bg-white">
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`mb-2 ${
-                msg.role === "bot" ? "text-blue-700" : "text-slate-800 text-right"
-              }`}
-            >
-              <span>{msg.content}</span>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="text-blue-400 text-sm">AI sedang mengetik...</div>
-          )}
-        </div>
-
-        {/* Input bar tetap di bawah */}
-        <div className="flex gap-2 border-t pt-2 bg-white">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            className="flex-1 border rounded px-2 py-1"
-          />
-          <button
-            className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition flex items-center justify-center"
-            onClick={sendMessage}
-            disabled={isLoading}
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    )}
-    {ModalConfirm()}
-    </div>
-  )
-}
