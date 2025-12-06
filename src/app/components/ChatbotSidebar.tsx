@@ -34,6 +34,7 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
       content: "Halo! Saya Chatbot Inventory. Ada yang bisa dibantu?",
     },
   ]);
+  // messages: array of { role: 'user'|'bot', content: string, time?: string }
 
   const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -41,6 +42,25 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
   const sidebarHeaderRef = useRef<HTMLDivElement>(null);
 
   const [historyChat, setHistoryChat] = useState([]) as any
+  const STORAGE_KEY = 'chatbot_sidebar_is_open'
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+      if (raw !== null) setIsOpen(raw === 'true')
+    } catch (e) {
+      // ignore storage errors
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, isOpen ? 'true' : 'false')
+    } catch (e) {
+      // ignore storage errors
+    }
+  }, [isOpen])
   const [tableModel, setTableModel] = useState([]) as any[]
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [formData, setFormData] = useState<HandlerRequestData>({
@@ -56,25 +76,37 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
     return setUser(data);
   }
 
-  const getHistoryChat = async () => {
-    if (messages.length >= 2) {
-      return
+  const formatTimeLabel = (value: string | undefined) => {
+    if (!value) return '';
+    try {
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return value;
+      return new Intl.DateTimeFormat('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d);
+    } catch (e) {
+      return value;
     }
+  }
 
-    const reponse = await getAllInformDatabase("history_chat", token)
+  const getHistoryChat = async () => {
+    try {
+      const response = await getAllInformDatabase("history_chat", token);
+      const rows = response?.data || [];
+      setHistoryChat(rows);
 
-    setHistoryChat(reponse.data)
-
-    for (let i = 0; i < historyChat.length; i++) {
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { role: "user", content: historyChat[i].request }
-      ]);
-
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { role: "bot", content: historyChat[i].response }
-      ]);
+      // only append historical messages if there are none besides the initial bot prompt
+      if (messages.length <= 1 && rows.length > 0) {
+        const histMessages: any[] = [];
+        // map oldest first
+        for (let i = 0; i < rows.length; i++) {
+          const r = rows[i];
+          const time = formatTimeLabel(r.created_at ?? r.time ?? r.createdAt ?? r.datetime);
+          histMessages.push({ role: 'user', content: r.request, time });
+          histMessages.push({ role: 'bot', content: r.response, time });
+        }
+        setMessages(prev => [...prev, ...histMessages]);
+      }
+    } catch (err) {
+      console.error('Failed to load history chat', err);
     }
   }
 
@@ -110,15 +142,18 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
           }
         );
 
-        gsap.to(sidebarRef.current, { width: 320, duration: 0.3, ease: "power2.out" })
+        gsap.to(sidebarRef.current, { width: 420, duration: 0.3, ease: "power2.out" })
       } else {
-        gsap.to(sidebarRef.current, { width: 56, duration: 0.3, ease: "power2.out" })
+        gsap.to(sidebarRef.current, { width: 64, duration: 0.3, ease: "power2.out" })
       }
     }
 
+    // only fetch data when sidebar opens to avoid repeated network calls
     getUserData();
-    getHistoryChat()
-    getTableModel()
+    if (isOpen) {
+      getHistoryChat();
+      getTableModel();
+    }
   }, [isOpen])
 
   const openModal = () => {
@@ -231,69 +266,66 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
       <div
         ref={sidebarRef}
         className="fixed right-0 top-0 h-full bg-white border-l border-slate-200 shadow-lg flex flex-col transition-all z-40 justify-between"
-        style={{ width: 56 }}
+        style={{ width: 64 }}
       >
-        <div className="flex items-center justify-center h-14 gap-3">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-indigo-600 cursor-default">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-            <text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor" >
-              AI
-            </text>
-          </svg>
+        <div className={`border-b border-slate-100 flex items-center h-14 gap-3 ${isOpen ? "px-3 justify-between": "px-1 justify-center"}`}>
+          <button
+            onClick={() => setIsOpen(prev => !prev)}
+            aria-expanded={isOpen}
+            title={isOpen ? 'Tutup Chatbot' : 'Buka Chatbot'}
+            className="w-10 h-10 rounded-md bg-indigo-600 flex items-center justify-center text-white font-semibold shadow focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          >
+            AI
+          </button>
           {isOpen && (
-            <h2 ref={sidebarHeaderRef} className="font-boldtext-lg text-indigo-600 cursor-default">
-              Inventory Chatbot
-            </h2>)}
+            <h2 ref={sidebarHeaderRef} className="text-indigo-600 font-semibold text-lg">Inventory Chatbot</h2>
+          )}
         </div>
+
         {isOpen && (
-          <div className="flex-1 flex flex-col p-4 pt-0 overflow-auto z-40" style={{ minWidth: 420 }}>
-            <div className="flex-1 overflow-y-auto mb-2">
-              {messages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex mb-2 p-1 ${msg.role === "bot" ? "justify-start" : "justify-end"
-                    }`}
-                >
-                  <div
-                    className={`p-3 ${msg.role === "bot"
-                      ? "text-indigo-600 bg-slate-200 rounded-r-2xl rounded-tl-2xl max-w-[80%]"
-                      : "text-slate-800 bg-indigo-100 rounded-l-2xl rounded-tr-2xl max-w-[80%]"
-                      }`}
-                  >
-                    <span>{msg.content}</span>
+          <div className="flex-1 flex flex-col pt-0 overflow-auto z-40" style={{ minWidth: 420 }}>
+            <div className="flex-1 overflow-y-auto pb-4 space-y-3 px-4 border-b border-slate-200">
+              {messages.map((msg: any, idx) => (
+                <div key={idx} className={`flex ${msg.role === 'bot' ? 'justify-start' : 'justify-end'}`}>
+                  <div className={`max-w-[78%] p-3 rounded-lg shadow-sm ${msg.role === 'bot' ? 'bg-slate-50 text-slate-800 rounded-br-none' : 'bg-indigo-600 text-white rounded-bl-none'}`}>
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                    {msg.time && <div className={`text-xs mt-2 ${msg.role === 'bot' ? 'text-slate-400' : 'text-white/80'}`}>{msg.time}</div>}
                   </div>
                 </div>
               ))}
               {isLoading && (
-                <div className="text-indigo-400 text-sm">AI sedang mengetik...</div>
+                <div className="text-indigo-500 text-sm">AI sedang mengetik...</div>
               )}
             </div>
 
+            
+            <div className="py-2 px-3">
+              <div className="p-3 border border-slate-300 rounded-lg bg-slate-100">
+                <div className="flex gap-2 items-center">
+                  <input
+                    className="flex-1 outline-none border border-indigo-300 bg-slate-50 rounded px-3 py-2 h-10 focus:ring-2 focus:ring-indigo-600/40 transition-all"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Tulis pesan..."
+                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                    disabled={isLoading}
+                  />
+                  <button
+                    className="bg-indigo-600 text-white px-4 py-3 rounded hover:bg-indigo-700 transition-all"
+                    onClick={sendMessage}
+                    disabled={isLoading}
+                  >
+                    <Send size={16} />
+                  </button>
+                </div>
+                <div className="mt-2 flex justify-between text-xs text-slate-400">
+                  <div>{isOpen ? 'Chat aktif' : 'Collapsed'}</div>
+                  <div>{messages.length - 1} pesan</div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
-        <div className="flex m-2 gap-2">
-          <div className="flex text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-500 shadow-xs font-medium leading-5 rounded px-4 py-2.5 focus:outline-none w-fit cursor-default"
-            onClick={isOpen ? () => setIsOpen(false) : () => setIsOpen(true)}
-          >{!isOpen ? "<" : ">"}
-          </div>
-          <div className="flex gap-2">
-            <input
-              className="flex-1 border-0 bg-gray-100 rounded px-2 py-1 w-full h-10 focus:outline-none"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Tulis pesan..."
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              disabled={isLoading}
-            />
-            <button
-              className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 cursor-default"
-              onClick={sendMessage}
-              disabled={isLoading}
-            >
-              Kirim
-            </button>
-          </div>
-        </div>
       </div>
       {ModalConfirm()}
     </>
