@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
             </div>
             <div className="overflow-hidden">
               <p className="text-sm font-medium text-slate-900 truncate">{user?.username || 'Guest'}</p>
-              <p className="text-xs text-slate-500 truncate">{user?.isAdmin == "YES" ? 'Administrator' : 'Staff'}</p>
+              <p className="text-xs text-slate-500 truncate">{user?.isAdmin === "YES" ? 'Administrator' : 'Staff'}</p>
             </div>
           </div>
         </Link>
