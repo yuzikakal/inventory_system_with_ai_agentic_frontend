@@ -29,5 +29,13 @@ export interface InventoryFormData {
   price: string;
 }
 
-export const BASE_URL = process.env.NEXT_API_SERVER || "http://localhost/smart_inventory_solution/";
-export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+export interface HandlerRequestData {
+  action: string;
+  request: string;
+  response: string
+  sql_script: string;
+  token: string;
+}
+
+export const BASE_URL = process.env.NEXT_PUBLIC_API_SERVER;
+export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY as any || "";
