@@ -119,7 +119,6 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
 
   const sendMessage = async () => {
     if (input.trim() === "") {
-      setMessages(msgs => [...msgs, { role: "bot", content: "Tidak ada pesan yang dikirimkan." }]);
       return;
     }
 
@@ -135,9 +134,14 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
       User message: ${input}
       Table model: ${JSON.stringify(tableModel)}
 
-      Jika user bertanya di luar konteks tabel, tetap balas dengan JSON di atas,
-      dan isi "sql_script" dengan null atau kosong.
-      Jangan berikan jawaban lain selain JSON.
+      Aturan tambahan:
+      - Jika perintah INSERT atau UPDATE memiliki lebih dari 3 values (contoh: INSERT INTO name_table (...) VALUES (...), (...), (...), (...)),
+        maka pecah menjadi beberapa perintah INSERT INTO terpisah, masing-masing maksimal 3 values.
+      - Jangan gabungkan lebih dari 3 values dalam satu query.
+      - Jika sql_script terlalu besar, tetap pecah sesuai aturan di atas.
+      - Jika user bertanya di luar konteks tabel, tetap balas dengan JSON di atas,
+        dan isi "sql_script" dengan null atau kosong.
+      - Jangan berikan jawaban lain selain JSON.
     `;
 
     setMessages([...messages, { role: "user", content: input }]);
@@ -146,10 +150,8 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
 
     try {
       const reply = await sendMessageToGemini(formattedRequest, GOOGLE_API_KEY);
-      console.log("Raw reply:", reply);
 
       const cleaned = cleanJsonResponse(reply);
-      console.log("Cleaned:", cleaned);
 
       // Parse JSON
       let parsed: any;
@@ -160,8 +162,7 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
         parsed = { explain: "Response bukan JSON valid", sql_script: null };
       }
 
-      // Simpan ke messages
-      console.log(parsed.explain)
+
       setMessages(msgs => [...msgs, { role: "bot", content: parsed.explain }]);
       setFormData({
         action: "ask_ai",
