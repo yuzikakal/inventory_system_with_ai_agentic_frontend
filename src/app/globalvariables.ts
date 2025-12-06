@@ -37,5 +37,5 @@ export interface HandlerRequestData {
   token: string;
 }
 
-export const BASE_URL = process.env.NEXT_API_SERVER || "http://localhost/smart_inventory_solution/";
+export const BASE_URL = process.env.NEXT_PUBLIC_API_SERVER;
 export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY as any || "";
