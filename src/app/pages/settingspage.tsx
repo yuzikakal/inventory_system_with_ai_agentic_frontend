@@ -32,7 +32,7 @@ const SettingsPage = () => {
       .then((data) => {
         if (!mounted) return;
         if (data && (data.user || data.email || data.name)) {
-          setUserData(data.user ?? data);
+          setUserData(data.user ?? null);
         }
       })
       .catch((err) => console.error("Failed to load user:", err))
