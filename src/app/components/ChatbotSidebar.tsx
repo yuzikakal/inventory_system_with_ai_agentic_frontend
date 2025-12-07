@@ -165,7 +165,7 @@ export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
 
   const executeWithAI = async(data: HandlerRequestData) => {
     const response = await handlerRequestSqlFromAi(data)
-    onLoadData(await fetchInventoryData())
+    onLoadData(await fetchInventoryData(user.user.username))
     setIsModalOpen(false)
     return response
   }

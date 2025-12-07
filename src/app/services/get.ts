@@ -1,9 +1,9 @@
 import { ApiResponse, InventoryItem, User } from '../globalvariables';
 import { BASE_URL } from '../globalvariables';
 
-export const fetchInventoryData = async (): Promise<InventoryItem[]> => {
+export const fetchInventoryData = async (user: string): Promise<InventoryItem[]> => {
   try {
-    const response = await fetch(BASE_URL);
+    const response = await fetch(`${BASE_URL}?user=${user}`);
     
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`);
