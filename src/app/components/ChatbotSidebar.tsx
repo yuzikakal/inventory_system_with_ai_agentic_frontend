@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import { useState, useRef, useEffect } from "react"
 import gsap from "gsap"
 import { sendMessageToGemini } from "../services/chatbotGemini"
@@ -16,8 +15,8 @@ interface ChatBotProps {
   onLoadData: (data: InventoryItem[]) => void
 }
 
-export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
-  const [user, setUser] = useState<HandleGetUserData>({
+export const ChatbotSidebar = ({token, onLoadData}: ChatBotProps) => {
+   const [user, setUser] = useState<HandleGetUserData>({
     auth: false,
     user: {
       exp: 0,
@@ -27,42 +26,21 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
       username: "",
     }
   });
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([
     {
       role: "bot",
       content: "Halo! Saya Chatbot Inventory. Ada yang bisa dibantu?",
     },
   ]);
-  // messages: array of { role: 'user'|'bot', content: string, time?: string }
-
-  const [input, setInput] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const sidebarHeaderRef = useRef(null);
   
   const [historyChat, setHistoryChat] = useState([]) as any
-  const STORAGE_KEY = 'chatbot_sidebar_is_open'
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY)
-      if (raw !== null) setIsOpen(raw === 'true')
-    } catch (e) {
-      // ignore storage errors
-    }
-  }, [])
-
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, isOpen ? 'true' : 'false')
-    } catch (e) {
-      // ignore storage errors
-    }
-  }, [isOpen])
   const [tableModel, setTableModel] = useState([]) as any[]
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState<HandlerRequestData>({
     action: "ask_ai",
     request: "",
@@ -70,11 +48,6 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
     sql_script: "",
     token: ""
   })
-
-  const getUserData = async () => {
-    const data = await getUserAuth();
-    return setUser(data);
-  }
 
   const formatTimeLabel = (value: string | undefined) => {
     if (!value) return '';
@@ -87,7 +60,7 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
     }
   }
 
-  const getHistoryChat = async () => {
+  const getHistoryChat = async() => {
     try {
       const response = await getAllInformDatabase("history_chat", token);
       const rows = response?.data || [];
@@ -110,7 +83,12 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
     }
   }
 
-  const getTableModel = async () => {
+  const getUserData = async () => {
+    const data = await getUserAuth();
+    return setUser(data);
+  }
+
+  const getTableModel = async() => {
     if (messages.length >= 2) {
       return
     }
@@ -129,14 +107,14 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
         });
 
         gsap.fromTo(sidebarHeaderRef.current,
-          {
+          { 
             opacity: 0,
             x: -20
           },
           {
             opacity: 1,
             x: 0,
-            duration: 0.3,
+            duration: 0.3, 
             delay: 0.3,
             ease: "power2.out",
           }
@@ -148,12 +126,9 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
       }
     }
 
-    // only fetch data when sidebar opens to avoid repeated network calls
-    getUserData();
-    if (isOpen) {
-      getHistoryChat();
-      getTableModel();
-    }
+    getHistoryChat()
+    getTableModel()
+    getUserData()
   }, [isOpen])
 
   const openModal = () => {
@@ -171,8 +146,8 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
           <p className="text-slate-700">
             Apakah Anda yakin ingin melanjutkan eksekusi?
           </p>
-
-          <div className="pt-4 flex justify-end gap-3">
+          
+        <div className="pt-4 flex justify-end gap-3">
             <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Batal</Button>
             <Button type="button" variant="primary" onClick={() => executeWithAI(formData)}>Ya</Button>
           </div>
@@ -188,7 +163,7 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
       .trim();
   }
 
-  const executeWithAI = async (data: HandlerRequestData) => {
+  const executeWithAI = async(data: HandlerRequestData) => {
     const response = await handlerRequestSqlFromAi(data)
     onLoadData(await fetchInventoryData())
     setIsModalOpen(false)
@@ -249,8 +224,7 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
         sql_script: parsed.sql_script,
         token: token
       })
-      setIsModalOpen(true);
-      console.log(parsed)
+      setIsModalOpen(true)
     } catch (err) {
       setMessages((msgs) => [
         ...msgs,
@@ -266,80 +240,64 @@ export const ChatbotSidebar = ({ token, onLoadData }: ChatBotProps) => {
     <div
       ref={sidebarRef}
       className="fixed right-0 top-0 h-full bg-white border-l border-slate-200 shadow-lg flex flex-col transition-all z-40 justify-between"
-      style={{ width: 56 }}
+      style={{ width: 64 }}
     >
-      <div className="flex items-center justify-center h-14 gap-3">
-        <svg
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          className="text-indigo-600 cursor-default"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="2"
-          />
-          <text
-            x="12"
-            y="16"
-            textAnchor="middle"
-            fontSize="10"
-            fill="currentColor"
-          >
-            AI
+      <div className={`border-b border-slate-100 flex items-center h-14 gap-3 ${isOpen ? "px-3 justify-between": "px-1 justify-center"}`}>
+          <button
+            onClick={() => setIsOpen(prev => !prev)}
+            aria-expanded={isOpen}
+            title={isOpen ? 'Tutup Chatbot' : 'Buka Chatbot'}
+            className="w-10 h-10 rounded-md bg-indigo-600 flex items-center justify-center text-white font-semibold shadow focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          > 
+          AI
           </button>
-          {isOpen && (
-            <h2 ref={sidebarHeaderRef} className="text-indigo-600 font-semibold text-lg">Inventory Chatbot</h2>
-          )}
-        </div>
-
         {isOpen && (
-          <div className="flex-1 flex flex-col pt-0 overflow-auto z-40" style={{ minWidth: 420 }}>
+            <h2 ref={sidebarHeaderRef} className="text-indigo-600 font-semibold text-lg">Inventory Chatbot</h2>
+        )}
+      </div>
+      {isOpen && (
+        <div className="flex-1 flex flex-col pt-0 overflow-auto z-40" style={{ minWidth: 420 }}>
             <div className="flex-1 overflow-y-auto pb-4 space-y-3 px-4 border-b border-slate-200">
               {messages.map((msg: any, idx) => (
                 <div key={idx} className={`flex ${msg.role === 'bot' ? 'justify-start' : 'justify-end'}`}>
                   <div className={`max-w-[78%] p-3 rounded-lg shadow-sm ${msg.role === 'bot' ? 'bg-slate-50 text-slate-800 rounded-br-none' : 'bg-indigo-600 text-white rounded-bl-none'}`}>
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
                     {msg.time && <div className={`text-xs mt-2 ${msg.role === 'bot' ? 'text-slate-400' : 'text-white/80'}`}>{msg.time}</div>}
-                  </div>
+                  <span>{msg.content}</span>
                 </div>
-              ))}
-              {isLoading && (
-                <div className="text-indigo-500 text-sm">AI sedang mengetik...</div>
-              )}
-            </div>
-
-            
-            <div className="py-2 px-3">
-              <div className="p-3 border border-slate-300 rounded-lg bg-slate-100">
-                <div className="flex gap-2 items-center">
-                  <input
-                    className="flex-1 outline-none border border-indigo-300 bg-slate-50 rounded px-3 py-2 h-10 focus:ring-2 focus:ring-indigo-600/40 transition-all"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Tulis pesan..."
-                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                    disabled={isLoading}
-                  />
-                  <button
-                    className="bg-indigo-600 text-white px-4 py-3 rounded hover:bg-indigo-700 transition-all"
-                    onClick={sendMessage}
-                    disabled={isLoading}
-                  >
-                    <Send size={16} />
-                  </button>
-                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="text-indigo-500 text-sm">AI sedang mengetik...</div>
+            )}
+          </div>
+          
+        <div className="py-2 px-3">
+            <div className="p-3 border border-slate-300 rounded-lg bg-slate-100">
+              <div className="flex gap-2 items-center">
+                <Input
+                  className="flex-1 outline-none border border-indigo-300 bg-slate-50 rounded px-3 py-2 h-10 focus:ring-2 focus:ring-indigo-600/40 transition-all"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Tulis pesan..."
+                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  disabled={isLoading}
+                />
+                <button
+                  className="bg-indigo-600 text-white px-4 py-3 rounded hover:bg-indigo-700 transition-all"
+                  onClick={sendMessage}
+                  disabled={isLoading}
+                >
+                  <Send size={16}/>
+                </button>
+              </div>
                 <div className="mt-2 flex justify-between text-xs text-slate-400">
                   <div>{isOpen ? 'Chat aktif' : 'Collapsed'}</div>
                   <div>{messages.length - 1} pesan</div>
                 </div>
-              </div>
             </div>
-          </div>
+        </div>
+      </div>
+        )}
     </div>
       {ModalConfirm()}
     </>

@@ -48,5 +48,5 @@ export interface HandleGetUserData {
   }
 }
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_SERVER;
+export const BASE_URL = process.env.NEXT_PUBLIC_API_SERVER as string;
 export const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY as any || "";

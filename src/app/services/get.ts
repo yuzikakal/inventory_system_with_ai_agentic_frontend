@@ -31,6 +31,5 @@ export const fetchInventoryData = async (): Promise<InventoryItem[]> => {
 export const getUserAuth = async () => {
     const response = await fetch("/v1/api/auth/me");
     const data = await response.json();
-    console.log(data);
     return data;
 }

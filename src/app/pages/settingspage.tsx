@@ -112,7 +112,7 @@ const SettingsPage = () => {
     setLoggingOut(true);
     try {
       await fetch("/v1/api/auth/logout", { method: "POST" });
-      router.push("/loginpage");
+      router.push("/login");
     } catch (err) {
       console.error("Logout failed", err);
       setLoggingOut(false);
@@ -144,7 +144,7 @@ const SettingsPage = () => {
                 </div>
                 <div>
                   <p className="text-lg font-semibold">{userData?.username ?? 'Pengguna'}</p>
-                  <p className="text-sm text-slate-500">{userData?.email ?? 'Belum ada email'}</p>
+              </div>
               </div>
             </aside>
 
@@ -157,7 +157,7 @@ const SettingsPage = () => {
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <div className="text-xs text-slate-500">Name</div>
-                      <div className="text-sm font-medium">{userData.name ?? userData.username ?? '-'}</div>
+                      <div className="text-sm font-medium">{userData.username ?? '-'}</div>
                     </div>
                     <div className="">
                       <div className="text-xs text-slate-500">Role</div>
